@@ -1,6 +1,7 @@
 import streamlit as st
 import extra_streamlit_components as stx
 import time
+import os
 from datetime import datetime, timedelta
 from database.connection import init_db, get_db
 from services.auth_service import AuthService

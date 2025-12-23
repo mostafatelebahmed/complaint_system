@@ -3,3 +3,6 @@ pandas
 sqlalchemy
 openpyxl
 altair
+psycopg2-binary
+plotly
+extra-streamlit-components

@@ -184,9 +184,9 @@ if 'user' not in st.session_state or st.session_state.user is None:
         if user:
             st.session_state.user = user
         else:
-            st.switch_page("Login.py") # الكوكي فاسد
+            st.switch_page("login.py") # الكوكي فاسد
     else:
-        st.switch_page("Login.py") # مفيش دخول
+        st.switch_page("login.py") # مفيش دخول
 
 # تعريف المستخدم الحالي لاستخدامه في باقي الملف
 current_user = st.session_state.user
@@ -232,7 +232,7 @@ if st.sidebar.button("🚪 تسجيل خروج", use_container_width=True, type=
     cookie_manager.delete('auth_token')
     st.session_state.user = None
     time.sleep(1) # مهلة لحذف الكوكي
-    st.switch_page("Login.py")
+    st.switch_page("login.py")
 
 if current_user.role == "Admin":
     # زر يوديك لصفحة التقارير الجديدة

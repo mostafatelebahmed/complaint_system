@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  # خدمة قاعدة البيانات (PostgreSQL)
+  db:
+    image: postgres:15-alpine
+    restart: always
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin123  # غير الباسورد دي لو تحب
+      POSTGRES_DB: complaints_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin -d complaints_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # خدمة التطبيق بتاعك
+  app:
+    build: .
+    restart: always
+    ports:
+      - "8501:8501"
+    environment:
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=admin123 # لازم نفس الباسورد اللي فوق
+      - POSTGRES_HOST=db           # ده اسم خدمة الداتابيز فوق
+      - POSTGRES_DB=complaints_db
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - .:/app  # عشان لو عدلت كود يتسمع علطول
+
+volumes:
+  postgres_data:

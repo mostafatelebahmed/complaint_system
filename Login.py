@@ -5,6 +5,18 @@ from datetime import datetime, timedelta
 from database.connection import init_db, get_db
 from services.auth_service import AuthService
 
+# === كود التشغيل التلقائي عند الرفع لأول مرة ===
+# ده هيتأكد إن الجداول واليوزرز موجودين أول ما الموقع يفتح
+try:
+    from manage_users import add_missing_users
+    # بنعمل Check بسيط عشان منشغلش الدالة دي مع كل ريفريش للصفحة
+    if "db_setup_done" not in st.session_state:
+        add_missing_users()
+        st.session_state["db_setup_done"] = True
+except Exception as e:
+    print(f"⚠️ Database setup warning: {e}")
+# ==============================================
+
 # 1. إعداد الصفحة
 st.set_page_config(page_title="تسجيل الدخول", page_icon="🔒", layout="centered")
 

@@ -7,14 +7,14 @@ from services.auth_service import AuthService
 
 # === كود التشغيل التلقائي عند الرفع لأول مرة ===
 # ده هيتأكد إن الجداول واليوزرز موجودين أول ما الموقع يفتح
-try:
-    from manage_users import add_missing_users
-    # بنعمل Check بسيط عشان منشغلش الدالة دي مع كل ريفريش للصفحة
-    if "db_setup_done" not in st.session_state:
-        add_missing_users()
-        st.session_state["db_setup_done"] = True
-except Exception as e:
-    print(f"⚠️ Database setup warning: {e}")
+# try:
+#     from manage_users import add_missing_users
+#     # بنعمل Check بسيط عشان منشغلش الدالة دي مع كل ريفريش للصفحة
+#     if "db_setup_done" not in st.session_state:
+#         add_missing_users()
+#         st.session_state["db_setup_done"] = True
+# except Exception as e:
+#     print(f"⚠️ Database setup warning: {e}")
 # ==============================================
 
 # 1. إعداد الصفحة
@@ -89,9 +89,20 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # 3. تهيئة النظام
-init_db()
-db = next(get_db())
+# init_db()
+@st.cache_resource
+def init_database():
+    init_db()
+
+init_database()
+# db = next(get_db())
+
 auth_svc = AuthService()
+username: str | None = None
+password: str | None = None
+with next(get_db()) as db:
+    user = auth_svc.login(db, username, password)
+
 cookie_manager = stx.CookieManager(key="login_manager")
 
 # 4. منطق الدخول التلقائي
@@ -110,10 +121,10 @@ if cookies and 'auth_token' in cookies:
 # --- الهيدر (صور) ---
 col_logo_r, col_title, col_logo_l = st.columns([1, 2, 1])
 with col_logo_r:
-    try: st.image("logo_right.png", width=120)
+    try: st.image("./assets/logo_right.png", width=120)
     except: st.write("")
 with col_logo_l:
-    try: st.image("logo_left.png", width=90)
+    try: st.image("./assets/logo_left.png", width=90)
     except: st.write("")
 
 # --- كارت الدخول ---

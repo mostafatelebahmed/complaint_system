@@ -21,7 +21,13 @@ if DATABASE_URL:
     if DATABASE_URL.startswith("postgres://"):
         DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
         
-    engine = create_engine(DATABASE_URL, pool_size=20, max_overflow=40)
+    engine = create_engine(
+    DATABASE_URL,
+    pool_pre_ping=True,
+    pool_size=5,
+    max_overflow=10,
+    pool_timeout=30,
+)
     print("🚀 Connected to Cloud PostgreSQL")
 else:
     # لو مفيش أي بيانات، اشتغل محلي SQLite

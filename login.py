@@ -6,16 +6,40 @@ from database.connection import init_db, get_db
 from services.auth_service import AuthService
 
 # === كود التشغيل التلقائي عند الرفع لأول مرة ===
-# ده هيتأكد إن الجداول واليوزرز موجودين أول ما الموقع يفتح
-# try:
-#     from manage_users import add_missing_users
-#     # بنعمل Check بسيط عشان منشغلش الدالة دي مع كل ريفريش للصفحة
-#     if "db_setup_done" not in st.session_state:
-#         add_missing_users()
-#         st.session_state["db_setup_done"] = True
-# except Exception as e:
-#     print(f"⚠️ Database setup warning: {e}")
-# ==============================================
+with st.sidebar.expander("🕵️‍♂️ كاشف أخطاء الاتصال", expanded=True):
+    # 1. كشف نوع الداتابيز المتصلة
+    db_url = os.getenv("DATABASE_URL", "")
+    if "neon.tech" in db_url:
+        st.success("✅ متصل بـ Neon PostgreSQL")
+    elif "sqlite" in str(db_url) or not db_url:
+        st.error("❌ تحذير: البرنامج شغال على SQLite (المحلية) مش Neon!")
+        st.write(f"قيمة الرابط الموجودة: {db_url if db_url else 'None'}")
+    else:
+        st.warning(f"متصل بـ: {db_url[:10]}...")
+
+    # 2. فحص المستخدمين الموجودين فعلياً
+    if st.button("🔍 افحص جدول Users"):
+        try:
+            from database.connection import get_db
+            from database.models import User
+            db = next(get_db())
+            
+            users = db.query(User).all()
+            if users:
+                st.write(f"عدد المستخدمين: {len(users)}")
+                for u in users:
+                    st.code(f"User: {u.username} | Role: {u.role}")
+            else:
+                st.error("الجدول فاضي! مفيش ولا مستخدم.")
+                
+        except Exception as e:
+            st.error(f"خطأ في الاستعلام: {e}")
+
+    # 3. محاولة إنشاء المستخدمين غصب (Force Create)
+    if st.button("force create users"):
+        from manage_users import add_missing_users
+        add_missing_users()
+        st.success("تم تشغيل دالة الإنشاء.")
 
 # 1. إعداد الصفحة
 st.set_page_config(page_title="تسجيل الدخول", page_icon="🔒", layout="centered")
